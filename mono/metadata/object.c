@@ -6238,11 +6238,16 @@ mono_print_unhandled_exception (MonoObject *exc)
 		}
 	}
 
+#ifdef MONO_MINWIN
+    printf ("\nUnhandled Exception:\n%s\n", message);
+#else
+    
 	/*
 	 * g_printerr ("\nUnhandled Exception: %s.%s: %s\n", exc->vtable->klass->name_space, 
 	 *	   exc->vtable->klass->name, message);
 	 */
-	printf ("\nUnhandled Exception:\n%s\n", message);
+	g_printerr ("\nUnhandled Exception:\n%s\n", message);
+#endif
 	
 	if (free_message)
 		g_free (message);

@@ -6556,7 +6556,8 @@ ves_icall_System_Environment_GetWindowsFolderPath (int folder)
 		#define CSIDL_FLAG_CREATE	0x8000
 	#endif
 
-	WCHAR path [MAX_PATH] = L"C:\\Windows";
+#if defined (MONO_MINWIN)
+    WCHAR path [MAX_PATH] = L"C:\\Windows";
 	/* Create directory if no existing */
 	if (1) {
 		int len = 0;
@@ -6564,6 +6565,17 @@ ves_icall_System_Environment_GetWindowsFolderPath (int folder)
 			++ len;
 		return mono_string_new_utf16 (mono_domain_get (), path, len);
 	}
+#else
+    WCHAR path [MAX_PATH];
+	/* Create directory if no existing */
+	if (SUCCEEDED (SHGetFolderPathW (NULL, folder | CSIDL_FLAG_CREATE, NULL, 0, path))) {
+		int len = 0;
+		while (path [len])
+			++ len;
+		return mono_string_new_utf16 (mono_domain_get (), path, len);
+	}
+#endif
+	
 #else
 	g_warning ("ves_icall_System_Environment_GetWindowsFolderPath should only be called on Windows!");
 #endif
@@ -6735,7 +6747,13 @@ ICALL_EXPORT void
 ves_icall_System_Environment_BroadcastSettingChange (void)
 {
 #ifdef HOST_WIN32
-	//SendMessageTimeout (HWND_BROADCAST, WM_SETTINGCHANGE, (WPARAM)NULL, (LPARAM)L"Environment", SMTO_ABORTIFHUNG, 2000, 0);
+
+#ifdef MONO_MINWIN
+    //Do nothing for now.
+#else
+    SendMessageTimeout (HWND_BROADCAST, WM_SETTINGCHANGE, (WPARAM)NULL, (LPARAM)L"Environment", SMTO_ABORTIFHUNG, 2000, 0);
+#endif
+
 #endif
 }
 

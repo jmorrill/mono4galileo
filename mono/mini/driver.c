@@ -1474,7 +1474,6 @@ switch_gc (char* argv[], const char* target_gc)
 int
 mono_main(int argc, char* argv[])
 {
-
 	MainThreadArgs main_args;
 	MonoAssembly *assembly;
 	MonoMethodDesc *desc;

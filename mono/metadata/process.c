@@ -630,7 +630,12 @@ MonoBoolean ves_icall_System_Diagnostics_Process_ShellExecuteEx_internal (MonoPr
 		shellex.fMask |= SEE_MASK_FLAG_NO_UI;
 	}
 
-	ret = FALSE;// ShellExecuteEx (&shellex);
+#ifdef MONO_MINWIN
+    ret = FALSE; //Do nothing for now
+#else
+    ret = ShellExecuteEx (&shellex);
+#endif
+	
 	if (ret == FALSE) {
 		process_info->pid = -GetLastError ();
 	} else {
@@ -750,9 +755,18 @@ MonoBoolean ves_icall_System_Diagnostics_Process_CreateProcess_internal (MonoPro
 		dir=mono_string_chars (proc_start_info->working_directory);
 	}
 
-	if (FALSE) {
+#ifdef MONO_MINWIN
+        if (FALSE) {
+#else
+        if (process_info->username) {
+#endif
+	
 		logon_flags = process_info->load_user_profile ? LOGON_WITH_PROFILE : 0;
-		//ret=CreateProcessWithLogonW (mono_string_chars (process_info->username), process_info->domain ? mono_string_chars (process_info->domain) : NULL, process_info->password, logon_flags, shell_path, cmd? mono_string_chars (cmd): NULL, creation_flags, env_vars, dir, &startinfo, &procinfo);
+#ifdef MONO_MINWIN
+        ret = FALSE;
+#else
+		ret=CreateProcessWithLogonW (mono_string_chars (process_info->username), process_info->domain ? mono_string_chars (process_info->domain) : NULL, process_info->password, logon_flags, shell_path, cmd? mono_string_chars (cmd): NULL, creation_flags, env_vars, dir, &startinfo, &procinfo);
+#endif
 	} else {
 		ret=CreateProcess (shell_path, cmd? mono_string_chars (cmd): NULL, NULL, NULL, TRUE, creation_flags, env_vars, dir, &startinfo, &procinfo);
 	}
@@ -797,18 +811,21 @@ MonoBoolean ves_icall_System_Diagnostics_Process_WaitForExit_internal (MonoObjec
 
 MonoBoolean ves_icall_System_Diagnostics_Process_WaitForInputIdle_internal (MonoObject *this, HANDLE process, gint32 ms)
 {
-	guint32 ret = FALSE;
+
+#ifdef MONO_MINWIN
+    return FALSE;
+#else
+    guint32 ret;
 	
 	MONO_ARCH_SAVE_REGS;
 
-	//if(ms<0) {
-	//	/* Wait forever */
-	//	ret=WaitForInputIdle (process, INFINITE);
-	//} else {
-	//	ret=WaitForInputIdle (process, ms);
-	//}
-
-	return (ret) ? FALSE : TRUE;
+	if(ms<0) {
+		/* Wait forever */
+		ret=WaitForInputIdle (process, INFINITE);
+	} else {
+		ret=WaitForInputIdle (process, ms);
+	}
+#endif
 }
 
 static guint64
@@ -902,7 +919,12 @@ MonoArray *ves_icall_System_Diagnostics_Process_GetProcesses_internal (void)
 	count = 512;
 	do {
 		pids = g_new0 (guint32, count);
-		ret = FALSE;//EnumProcesses (pids, count * sizeof (guint32), &needed);
+#ifdef MONO_MINWIN
+        ret = FALSE;
+#else
+        ret = EnumProcesses (pids, count * sizeof (guint32), &needed);
+#endif
+		
 		if (ret == FALSE) {
 			MonoException *exc;
 

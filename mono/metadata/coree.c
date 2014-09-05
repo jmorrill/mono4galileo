@@ -134,7 +134,6 @@ BOOL STDMETHODCALLTYPE _CorDllMain(HINSTANCE hInst, DWORD dwReason, LPVOID lpRes
 /* Called by ntdll.dll reagardless of entry point after _CorValidateImage. */
 __int32 STDMETHODCALLTYPE _CorExeMain(void)
 {
-    printf("_CorExeMain");
 	MonoDomain* domain;
 	MonoAssembly* assembly;
 	MonoImage* image;
@@ -155,7 +154,11 @@ __int32 STDMETHODCALLTYPE _CorExeMain(void)
 	if (error) {
 		g_free (error);
 		g_free (file_name);
-		//MessageBox (NULL, L"Corlib not in sync with this runtime.", NULL, MB_ICONERROR);
+#   if defined(MONO_MINWIN)
+        printf("Corlib not in sync with this runtime.\n");
+#   else
+        MessageBox (NULL, L"Corlib not in sync with this runtime.", NULL, MB_ICONERROR);
+#   endif
 		mono_runtime_quit ();
 		ExitProcess (1);
 	}
@@ -164,7 +167,12 @@ __int32 STDMETHODCALLTYPE _CorExeMain(void)
 	mono_close_exe_image ();
 	if (!assembly) {
 		g_free (file_name);
-		//MessageBox (NULL, L"Cannot open assembly.", NULL, MB_ICONERROR);
+#   if defined(MONO_MINWIN)
+        printf("Cannot open assembly.\n");
+#   else
+        MessageBox (NULL, L"Cannot open assembly.", NULL, MB_ICONERROR);
+#   endif
+
 		mono_runtime_quit ();
 		ExitProcess (1);
 	}
@@ -173,7 +181,11 @@ __int32 STDMETHODCALLTYPE _CorExeMain(void)
 	entry = mono_image_get_entry_point (image);
 	if (!entry) {
 		g_free (file_name);
-		//MessageBox (NULL, L"Assembly doesn't have an entry point.", NULL, MB_ICONERROR);
+#   if defined(MONO_MINWIN)
+        printf("Assembly doesn't have an entry point.\n");
+#   else
+        MessageBox (NULL, L"Assembly doesn't have an entry point.", NULL, MB_ICONERROR);
+#   endif
 		mono_runtime_quit ();
 		ExitProcess (1);
 	}
@@ -181,26 +193,40 @@ __int32 STDMETHODCALLTYPE _CorExeMain(void)
 	method = mono_get_method (image, entry, NULL);
 	if (method == NULL) {
 		g_free (file_name);
-		//MessageBox (NULL, L"The entry point method could not be loaded.", NULL, MB_ICONERROR);
+#   if defined(MONO_MINWIN)
+        printf("The entry point method could not be loaded.\n");
+#   else
+        MessageBox (NULL, L"The entry point method could not be loaded.", NULL, MB_ICONERROR);
+#   endif
+
 		mono_runtime_quit ();
 		ExitProcess (1);
 	}
 
-    /*
-	argvw = CommandLineToArgvW (GetCommandLine (), &argc);
-	argv = g_new0 (gchar*, argc);
-	argv [0] = file_name;
-	for (i = 1; i < argc; ++i)
-		argv [i] = g_utf16_to_utf8 (argvw [i], -1, NULL, NULL, NULL);
-	LocalFree (argvw);
-    */
-	mono_runtime_run_main (method, NULL, NULL, NULL);
+#if defined(MONO_MINWIN)
+    mono_runtime_run_main (method, NULL, NULL, NULL);
 	mono_thread_manage ();
 
 	mono_runtime_quit ();
 
 	/* return does not terminate the process. */
 	ExitProcess (mono_environment_exitcode_get ());
+#else
+    argvw = CommandLineToArgvW (GetCommandLine (), &argc);
+	argv = g_new0 (gchar*, argc);
+	argv [0] = file_name;
+	for (i = 1; i < argc; ++i)
+		argv [i] = g_utf16_to_utf8 (argvw [i], -1, NULL, NULL, NULL);
+	LocalFree (argvw);
+
+	mono_runtime_run_main (method, argc, argv, NULL);
+	mono_thread_manage ();
+
+	mono_runtime_quit ();
+
+	/* return does not terminate the process. */
+	ExitProcess (mono_environment_exitcode_get ());
+#endif
 }
 
 /* Called by msvcrt.dll when shutting down. */

@@ -655,12 +655,18 @@ GetRightsFromSid (PSID sid, PACL acl)
 {
 	ACCESS_MASK rights = 0;
 	TRUSTEE trustee;
+#ifdef MONO_MINWIN
+    return rights;
+#else
+    ACCESS_MASK rights = 0;
+	TRUSTEE trustee;
 
-//	BuildTrusteeWithSidW (&trustee, sid);
-	//if (GetEffectiveRightsFromAcl (acl, &trustee, &rights) != ERROR_SUCCESS)
+	BuildTrusteeWithSidW (&trustee, sid);
+	if (GetEffectiveRightsFromAcl (acl, &trustee, &rights) != ERROR_SUCCESS)
 		return 0;
 
 	return rights;
+#endif
 }
 
 
@@ -733,14 +739,20 @@ ProtectMachine (gunichar2 *path)
 	PSID pEveryoneSid = GetEveryoneSid ();
 	PSID pAdminsSid = GetAdministratorsSid ();
 	DWORD retval = -1;
-
-	if (FALSE) {
+#if MONO_MINWIN
+    if (FALSE) {
+#else
+    if (pEveryoneSid && pAdminsSid) {
+#endif
+	
 		PACL pDACL = NULL;
 		EXPLICIT_ACCESS ea [2];
 		ZeroMemory (&ea, 2 * sizeof (EXPLICIT_ACCESS));
 
 		/* grant all access to the BUILTIN\Administrators group */
-	//	BuildTrusteeWithSidW (&ea [0].Trustee, pAdminsSid);
+#ifndef MONO_MINWIN
+        BuildTrusteeWithSidW (&ea [0].Trustee, pAdminsSid);
+#endif
 		ea [0].grfAccessPermissions = GENERIC_ALL;
 		ea [0].grfAccessMode = SET_ACCESS;
 		ea [0].grfInheritance = SUB_CONTAINERS_AND_OBJECTS_INHERIT;
@@ -748,7 +760,9 @@ ProtectMachine (gunichar2 *path)
 		ea [0].Trustee.TrusteeType = TRUSTEE_IS_WELL_KNOWN_GROUP;
 
 		/* read-only access everyone */
-	//	BuildTrusteeWithSidW (&ea [1].Trustee, pEveryoneSid);
+#ifndef MONO_MINWIN
+        BuildTrusteeWithSidW (&ea [1].Trustee, pEveryoneSid);
+#endif
 		ea [1].grfAccessPermissions = GENERIC_READ;
 		ea [1].grfAccessMode = SET_ACCESS;
 		ea [1].grfInheritance = SUB_CONTAINERS_AND_OBJECTS_INHERIT;
@@ -781,13 +795,21 @@ ProtectUser (gunichar2 *path)
 	DWORD retval = -1;
 
 	PSID pCurrentSid = GetCurrentUserSid ();
-	if (FALSE) {
+
+#ifdef MONO_MINWIN
+    if (FALSE) {
+#else
+    if (pCurrentSid) {
+#endif
+	
 		PACL pDACL = NULL;
 		EXPLICIT_ACCESS ea;
 		ZeroMemory (&ea, sizeof (EXPLICIT_ACCESS));
 
 		/* grant exclusive access to the current user */
-	//	BuildTrusteeWithSidW (&ea.Trustee, pCurrentSid);
+#ifndef MONO_MINWIN
+	    BuildTrusteeWithSidW (&ea.Trustee, pCurrentSid);
+#endif
 		ea.grfAccessPermissions = GENERIC_ALL;
 		ea.grfAccessMode = SET_ACCESS;
 		ea.grfInheritance = SUB_CONTAINERS_AND_OBJECTS_INHERIT;

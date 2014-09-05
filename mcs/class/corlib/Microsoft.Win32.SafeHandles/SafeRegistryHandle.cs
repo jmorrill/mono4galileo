@@ -49,7 +49,7 @@ namespace Microsoft.Win32.SafeHandles {
 			return true;
 		}
 
-		[DllImport ("advapi32.dll", CharSet = CharSet.Unicode, EntryPoint="RegCloseKey")]
+		[DllImport ("API-MS-WIN-CORE-REGISTRY-L1-1-0.DLL", CharSet=CharSet.Unicode, EntryPoint="RegCloseKey", ExactSpelling=true)]
 		static extern int RegCloseKey (IntPtr keyHandle);
 	}
 }

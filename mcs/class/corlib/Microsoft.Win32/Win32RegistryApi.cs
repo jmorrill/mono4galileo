@@ -66,22 +66,22 @@ namespace Microsoft.Win32
 		const int RegOptionsNonVolatile = 0x00000000;
 		const int RegOptionsVolatile = 0x00000001;
 
-		[DllImport ("advapi32.dll", CharSet=CharSet.Unicode, EntryPoint="RegCreateKeyEx")]
+		[DllImport ("API-MS-WIN-CORE-REGISTRY-L1-1-0.DLL", CharSet=CharSet.Unicode, EntryPoint="RegCreateKeyEx")]
 		static extern int RegCreateKeyEx (IntPtr keyBase, string keyName, int reserved, 
 			IntPtr lpClass, int options, int access, IntPtr securityAttrs,
 			out IntPtr keyHandle, out int disposition);
 	       
-		[DllImport ("advapi32.dll", CharSet=CharSet.Unicode, EntryPoint="RegCloseKey")]
+		[DllImport ("API-MS-WIN-CORE-REGISTRY-L1-1-0.DLL", CharSet=CharSet.Unicode, EntryPoint="RegCloseKey", ExactSpelling=true)]
 		static extern int RegCloseKey (IntPtr keyHandle);
 
 		[DllImport ("advapi32.dll", CharSet=CharSet.Unicode)]
 		static extern int RegConnectRegistry (string machineName, IntPtr hKey,
 				out IntPtr keyHandle);
 
-		[DllImport ("advapi32.dll", CharSet=CharSet.Unicode, EntryPoint="RegFlushKey")]
+		[DllImport ("API-MS-WIN-CORE-REGISTRY-L1-1-0.DLL", CharSet=CharSet.Unicode, EntryPoint="RegFlushKey", ExactSpelling=true)]
 		private static extern int RegFlushKey (IntPtr keyHandle);
 
-		[DllImport ("advapi32.dll", CharSet=CharSet.Unicode, EntryPoint="RegOpenKeyEx")]
+		[DllImport ("API-MS-WIN-CORE-REGISTRY-L1-1-0.DLL", CharSet=CharSet.Unicode, EntryPoint="RegOpenKeyEx")]
 		private static extern int RegOpenKeyEx (IntPtr keyBase,
 				string keyName, IntPtr reserved, int access,
 				out IntPtr keyHandle);
@@ -89,7 +89,7 @@ namespace Microsoft.Win32
 		[DllImport ("advapi32.dll", CharSet=CharSet.Unicode, EntryPoint="RegDeleteKey")]
 		private static extern int RegDeleteKey (IntPtr keyHandle, string valueName);
 
-		[DllImport ("advapi32.dll", CharSet=CharSet.Unicode, EntryPoint="RegDeleteValue")]
+		[DllImport ("API-MS-WIN-CORE-REGISTRY-L1-1-0.DLL", CharSet=CharSet.Unicode, EntryPoint="RegDeleteValue")]
 		private static extern int RegDeleteValue (IntPtr keyHandle, string valueName);
 
 		[DllImport ("advapi32.dll", CharSet=CharSet.Unicode, EntryPoint="RegEnumKey")]
@@ -106,42 +106,42 @@ namespace Microsoft.Win32
 //				string valueName, IntPtr reserved, RegistryValueKind type,
 //				StringBuilder data, int rawDataLength);
 
-		[DllImport ("advapi32.dll", CharSet=CharSet.Unicode, EntryPoint="RegSetValueEx")]
+		[DllImport ("API-MS-WIN-CORE-REGISTRY-L1-1-0.DLL", CharSet=CharSet.Unicode, EntryPoint="RegSetValueEx")]
 		private static extern int RegSetValueEx (IntPtr keyBase, 
 				string valueName, IntPtr reserved, RegistryValueKind type,
 				string data, int rawDataLength);
 
-		[DllImport ("advapi32.dll", CharSet=CharSet.Unicode, EntryPoint="RegSetValueEx")]
+		[DllImport ("API-MS-WIN-CORE-REGISTRY-L1-1-0.DLL", CharSet=CharSet.Unicode, EntryPoint="RegSetValueEx")]
 		private static extern int RegSetValueEx (IntPtr keyBase, 
 				string valueName, IntPtr reserved, RegistryValueKind type,
 				byte[] rawData, int rawDataLength);
 
-		[DllImport ("advapi32.dll", CharSet=CharSet.Unicode, EntryPoint="RegSetValueEx")]
+		[DllImport ("API-MS-WIN-CORE-REGISTRY-L1-1-0.DLL", CharSet=CharSet.Unicode, EntryPoint="RegSetValueEx")]
 		private static extern int RegSetValueEx (IntPtr keyBase, 
 				string valueName, IntPtr reserved, RegistryValueKind type,
 				ref int data, int rawDataLength);
 
-		[DllImport ("advapi32.dll", CharSet=CharSet.Unicode, EntryPoint="RegSetValueEx")]
+		[DllImport ("API-MS-WIN-CORE-REGISTRY-L1-1-0.DLL", CharSet=CharSet.Unicode, EntryPoint="RegSetValueEx")]
 		private static extern int RegSetValueEx (IntPtr keyBase, 
 				string valueName, IntPtr reserved, RegistryValueKind type,
 				ref long data, int rawDataLength);
 
-		[DllImport ("advapi32.dll", CharSet=CharSet.Unicode, EntryPoint="RegQueryValueEx")]
+		[DllImport ("API-MS-WIN-CORE-REGISTRY-L1-1-0.DLL", CharSet=CharSet.Unicode, EntryPoint="RegQueryValueEx")]
 		private static extern int RegQueryValueEx (IntPtr keyBase,
 				string valueName, IntPtr reserved, ref RegistryValueKind type,
 				IntPtr zero, ref int dataSize);
 
-		[DllImport ("advapi32.dll", CharSet=CharSet.Unicode, EntryPoint="RegQueryValueEx")]
+		[DllImport ("API-MS-WIN-CORE-REGISTRY-L1-1-0.DLL", CharSet=CharSet.Unicode, EntryPoint="RegQueryValueEx")]
 		private static extern int RegQueryValueEx (IntPtr keyBase,
 				string valueName, IntPtr reserved, ref RegistryValueKind type,
 				[Out] byte[] data, ref int dataSize);
 
-		[DllImport ("advapi32.dll", CharSet=CharSet.Unicode, EntryPoint="RegQueryValueEx")]
+		[DllImport ("API-MS-WIN-CORE-REGISTRY-L1-1-0.DLL", CharSet=CharSet.Unicode, EntryPoint="RegQueryValueEx")]
 		private static extern int RegQueryValueEx (IntPtr keyBase,
 				string valueName, IntPtr reserved, ref RegistryValueKind type,
 				ref int data, ref int dataSize);
 
-		[DllImport ("advapi32.dll", CharSet=CharSet.Unicode, EntryPoint="RegQueryValueEx")]
+		[DllImport ("API-MS-WIN-CORE-REGISTRY-L1-1-0.DLL", CharSet=CharSet.Unicode, EntryPoint="RegQueryValueEx")]
 		private static extern int RegQueryValueEx (IntPtr keyBase,
 				string valueName, IntPtr reserved, ref RegistryValueKind type,
 				ref long data, ref int dataSize);
