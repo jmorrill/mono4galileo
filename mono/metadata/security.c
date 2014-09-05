@@ -658,9 +658,6 @@ GetRightsFromSid (PSID sid, PACL acl)
 #ifdef MONO_MINWIN
     return rights;
 #else
-    ACCESS_MASK rights = 0;
-	TRUSTEE trustee;
-
 	BuildTrusteeWithSidW (&trustee, sid);
 	if (GetEffectiveRightsFromAcl (acl, &trustee, &rights) != ERROR_SUCCESS)
 		return 0;

@@ -248,11 +248,21 @@ static void process_get_fileversion (MonoObject *filever, gunichar2 *filename)
 	gunichar2 lang_buf[128];
 	guint32 lang, lang_count;
 
+#ifdef MONO_MINWIN
 	datalen = GetFileVersionInfoSizeEx (FILE_VER_GET_NEUTRAL, filename, &verinfohandle);
+#else
+    datalen = GetFileVersionInfoSize (filename, &verinfohandle);
+#endif
 	if (datalen) {
 		data = g_malloc0 (datalen);
+#ifdef MONO_MINWIN
 		ok = GetFileVersionInfoEx (FILE_VER_GET_NEUTRAL, filename, verinfohandle, datalen,
+                     data);
+#else
+        ok = GetFileVersionInfo (filename, verinfohandle, datalen,
 					 data);
+#endif
+					
 		if (ok) {
 			query = g_utf8_to_utf16 ("\\", -1, NULL, NULL, NULL);
 			if (query == NULL) {
@@ -825,6 +835,8 @@ MonoBoolean ves_icall_System_Diagnostics_Process_WaitForInputIdle_internal (Mono
 	} else {
 		ret=WaitForInputIdle (process, ms);
 	}
+
+    return (ret) ? FALSE : TRUE;
 #endif
 }
 
@@ -952,12 +964,16 @@ MonoArray *ves_icall_System_Diagnostics_Process_GetProcesses_internal (void)
 
 MonoBoolean ves_icall_System_Diagnostics_Process_GetWorkingSet_internal (HANDLE process, guint32 *min, guint32 *max)
 {
+
 	gboolean ret;
 	SIZE_T ws_min, ws_max;
 	
 	MONO_ARCH_SAVE_REGS;
-
+#ifdef MONO_MINWIN
 	ret=GetProcessWorkingSetSizeEx (process, &ws_min, &ws_max, QUOTA_LIMITS_HARDWS_MIN_DISABLE);
+#else
+    ret=GetProcessWorkingSetSize (process, &ws_min, &ws_max);
+#endif
 	*min=(guint32)ws_min;
 	*max=(guint32)ws_max;
 	
@@ -971,8 +987,12 @@ MonoBoolean ves_icall_System_Diagnostics_Process_SetWorkingSet_internal (HANDLE 
 	SIZE_T ws_max;
 	
 	MONO_ARCH_SAVE_REGS;
-
+#ifdef MONO_MINWIN
 	ret=GetProcessWorkingSetSizeEx (process, &ws_min, &ws_max,QUOTA_LIMITS_HARDWS_MIN_DISABLE);
+#else
+    ret=GetProcessWorkingSetSize (process, &ws_min, &ws_max);
+#endif
+
 	if(ret==FALSE) {
 		return(FALSE);
 	}
@@ -982,8 +1002,13 @@ MonoBoolean ves_icall_System_Diagnostics_Process_SetWorkingSet_internal (HANDLE 
 	} else {
 		ws_max=(SIZE_T)max;
 	}
-	
-	ret=SetProcessWorkingSetSizeEx (process, ws_min, ws_max, QUOTA_LIMITS_HARDWS_MIN_DISABLE);
+
+#ifdef MONO_MINWIN
+    ret=SetProcessWorkingSetSizeEx (process, ws_min, ws_max, QUOTA_LIMITS_HARDWS_MIN_DISABLE);
+#else
+    ret=SetProcessWorkingSetSize (process, ws_min, ws_max);
+#endif
+
 
 	return(ret);
 }
