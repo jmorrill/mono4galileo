@@ -1462,6 +1462,7 @@ switch_gc (char* argv[], const char* target_gc)
 #endif
 }
 
+
 /**
  * mono_main:
  * @argc: number of arguments in the argv array
@@ -1471,14 +1472,17 @@ switch_gc (char* argv[], const char* target_gc)
  * in the same way that the mono command line VM would.
  */
 int
-mono_main (int argc, char* argv[])
+mono_main(int argc, char* argv[])
 {
+
 	MainThreadArgs main_args;
 	MonoAssembly *assembly;
 	MonoMethodDesc *desc;
 	MonoMethod *method;
 	MonoCompile *cfg;
 	MonoDomain *domain;
+
+
 	MonoImageOpenStatus open_status;
 	const char* aname, *mname = NULL;
 	char *config_file = NULL;

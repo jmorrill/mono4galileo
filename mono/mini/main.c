@@ -88,15 +88,16 @@ mono_main_with_options (int argc, char *argv [])
 		g_ptr_array_free (array, TRUE);
 	}
 
-	return mono_main (argc, argv);
+  return  mono_main (argc, argv);
 }
 
 #ifdef HOST_WIN32
 
 int
-main (void)
+main (int argc, char* argv[])
 {
-	int argc;
+    
+	/*int argc;
 	gunichar2** argvw;
 	gchar** argv;
 	int i;
@@ -107,9 +108,11 @@ main (void)
 		argv [i] = g_utf16_to_utf8 (argvw [i], -1, NULL, NULL, NULL);
 	argv [argc] = NULL;
 
-	LocalFree (argvw);
+	LocalFree (argvw);*/
 
-	return mono_main_with_options  (argc, argv);
+	int test = mono_main_with_options  (argc, argv);
+
+    return test;
 }
 
 #else

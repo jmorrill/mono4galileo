@@ -656,8 +656,8 @@ GetRightsFromSid (PSID sid, PACL acl)
 	ACCESS_MASK rights = 0;
 	TRUSTEE trustee;
 
-	BuildTrusteeWithSidW (&trustee, sid);
-	if (GetEffectiveRightsFromAcl (acl, &trustee, &rights) != ERROR_SUCCESS)
+//	BuildTrusteeWithSidW (&trustee, sid);
+	//if (GetEffectiveRightsFromAcl (acl, &trustee, &rights) != ERROR_SUCCESS)
 		return 0;
 
 	return rights;
@@ -734,13 +734,13 @@ ProtectMachine (gunichar2 *path)
 	PSID pAdminsSid = GetAdministratorsSid ();
 	DWORD retval = -1;
 
-	if (pEveryoneSid && pAdminsSid) {
+	if (FALSE) {
 		PACL pDACL = NULL;
 		EXPLICIT_ACCESS ea [2];
 		ZeroMemory (&ea, 2 * sizeof (EXPLICIT_ACCESS));
 
 		/* grant all access to the BUILTIN\Administrators group */
-		BuildTrusteeWithSidW (&ea [0].Trustee, pAdminsSid);
+	//	BuildTrusteeWithSidW (&ea [0].Trustee, pAdminsSid);
 		ea [0].grfAccessPermissions = GENERIC_ALL;
 		ea [0].grfAccessMode = SET_ACCESS;
 		ea [0].grfInheritance = SUB_CONTAINERS_AND_OBJECTS_INHERIT;
@@ -748,7 +748,7 @@ ProtectMachine (gunichar2 *path)
 		ea [0].Trustee.TrusteeType = TRUSTEE_IS_WELL_KNOWN_GROUP;
 
 		/* read-only access everyone */
-		BuildTrusteeWithSidW (&ea [1].Trustee, pEveryoneSid);
+	//	BuildTrusteeWithSidW (&ea [1].Trustee, pEveryoneSid);
 		ea [1].grfAccessPermissions = GENERIC_READ;
 		ea [1].grfAccessMode = SET_ACCESS;
 		ea [1].grfInheritance = SUB_CONTAINERS_AND_OBJECTS_INHERIT;
@@ -781,13 +781,13 @@ ProtectUser (gunichar2 *path)
 	DWORD retval = -1;
 
 	PSID pCurrentSid = GetCurrentUserSid ();
-	if (pCurrentSid) {
+	if (FALSE) {
 		PACL pDACL = NULL;
 		EXPLICIT_ACCESS ea;
 		ZeroMemory (&ea, sizeof (EXPLICIT_ACCESS));
 
 		/* grant exclusive access to the current user */
-		BuildTrusteeWithSidW (&ea.Trustee, pCurrentSid);
+	//	BuildTrusteeWithSidW (&ea.Trustee, pCurrentSid);
 		ea.grfAccessPermissions = GENERIC_ALL;
 		ea.grfAccessMode = SET_ACCESS;
 		ea.grfInheritance = SUB_CONTAINERS_AND_OBJECTS_INHERIT;

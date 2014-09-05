@@ -248,10 +248,10 @@ static void process_get_fileversion (MonoObject *filever, gunichar2 *filename)
 	gunichar2 lang_buf[128];
 	guint32 lang, lang_count;
 
-	datalen = GetFileVersionInfoSize (filename, &verinfohandle);
+	datalen = GetFileVersionInfoSizeEx (FILE_VER_GET_NEUTRAL, filename, &verinfohandle);
 	if (datalen) {
 		data = g_malloc0 (datalen);
-		ok = GetFileVersionInfo (filename, verinfohandle, datalen,
+		ok = GetFileVersionInfoEx (FILE_VER_GET_NEUTRAL, filename, verinfohandle, datalen,
 					 data);
 		if (ok) {
 			query = g_utf8_to_utf16 ("\\", -1, NULL, NULL, NULL);
@@ -630,7 +630,7 @@ MonoBoolean ves_icall_System_Diagnostics_Process_ShellExecuteEx_internal (MonoPr
 		shellex.fMask |= SEE_MASK_FLAG_NO_UI;
 	}
 
-	ret = ShellExecuteEx (&shellex);
+	ret = FALSE;// ShellExecuteEx (&shellex);
 	if (ret == FALSE) {
 		process_info->pid = -GetLastError ();
 	} else {
@@ -750,9 +750,9 @@ MonoBoolean ves_icall_System_Diagnostics_Process_CreateProcess_internal (MonoPro
 		dir=mono_string_chars (proc_start_info->working_directory);
 	}
 
-	if (process_info->username) {
+	if (FALSE) {
 		logon_flags = process_info->load_user_profile ? LOGON_WITH_PROFILE : 0;
-		ret=CreateProcessWithLogonW (mono_string_chars (process_info->username), process_info->domain ? mono_string_chars (process_info->domain) : NULL, process_info->password, logon_flags, shell_path, cmd? mono_string_chars (cmd): NULL, creation_flags, env_vars, dir, &startinfo, &procinfo);
+		//ret=CreateProcessWithLogonW (mono_string_chars (process_info->username), process_info->domain ? mono_string_chars (process_info->domain) : NULL, process_info->password, logon_flags, shell_path, cmd? mono_string_chars (cmd): NULL, creation_flags, env_vars, dir, &startinfo, &procinfo);
 	} else {
 		ret=CreateProcess (shell_path, cmd? mono_string_chars (cmd): NULL, NULL, NULL, TRUE, creation_flags, env_vars, dir, &startinfo, &procinfo);
 	}
@@ -797,16 +797,16 @@ MonoBoolean ves_icall_System_Diagnostics_Process_WaitForExit_internal (MonoObjec
 
 MonoBoolean ves_icall_System_Diagnostics_Process_WaitForInputIdle_internal (MonoObject *this, HANDLE process, gint32 ms)
 {
-	guint32 ret;
+	guint32 ret = FALSE;
 	
 	MONO_ARCH_SAVE_REGS;
 
-	if(ms<0) {
-		/* Wait forever */
-		ret=WaitForInputIdle (process, INFINITE);
-	} else {
-		ret=WaitForInputIdle (process, ms);
-	}
+	//if(ms<0) {
+	//	/* Wait forever */
+	//	ret=WaitForInputIdle (process, INFINITE);
+	//} else {
+	//	ret=WaitForInputIdle (process, ms);
+	//}
 
 	return (ret) ? FALSE : TRUE;
 }
@@ -902,7 +902,7 @@ MonoArray *ves_icall_System_Diagnostics_Process_GetProcesses_internal (void)
 	count = 512;
 	do {
 		pids = g_new0 (guint32, count);
-		ret = EnumProcesses (pids, count * sizeof (guint32), &needed);
+		ret = FALSE;//EnumProcesses (pids, count * sizeof (guint32), &needed);
 		if (ret == FALSE) {
 			MonoException *exc;
 
@@ -935,7 +935,7 @@ MonoBoolean ves_icall_System_Diagnostics_Process_GetWorkingSet_internal (HANDLE 
 	
 	MONO_ARCH_SAVE_REGS;
 
-	ret=GetProcessWorkingSetSize (process, &ws_min, &ws_max);
+	ret=GetProcessWorkingSetSizeEx (process, &ws_min, &ws_max, QUOTA_LIMITS_HARDWS_MIN_DISABLE);
 	*min=(guint32)ws_min;
 	*max=(guint32)ws_max;
 	
@@ -950,7 +950,7 @@ MonoBoolean ves_icall_System_Diagnostics_Process_SetWorkingSet_internal (HANDLE 
 	
 	MONO_ARCH_SAVE_REGS;
 
-	ret=GetProcessWorkingSetSize (process, &ws_min, &ws_max);
+	ret=GetProcessWorkingSetSizeEx (process, &ws_min, &ws_max,QUOTA_LIMITS_HARDWS_MIN_DISABLE);
 	if(ret==FALSE) {
 		return(FALSE);
 	}
@@ -961,7 +961,7 @@ MonoBoolean ves_icall_System_Diagnostics_Process_SetWorkingSet_internal (HANDLE 
 		ws_max=(SIZE_T)max;
 	}
 	
-	ret=SetProcessWorkingSetSize (process, ws_min, ws_max);
+	ret=SetProcessWorkingSetSizeEx (process, ws_min, ws_max, QUOTA_LIMITS_HARDWS_MIN_DISABLE);
 
 	return(ret);
 }
